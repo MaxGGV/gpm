@@ -1,7 +1,6 @@
 # coding: utf-8
 
-"""French address geolocalizer API
-"""
+"""French address geolocalizer API """
 import csv
 import io
 
@@ -9,6 +8,7 @@ import pandas as pd
 import requests
 import slumber
 from gpm.decorators import simple_time_tracker
+from termcolor import colored
 
 URL = "https://api-adresse.data.gouv.fr"
 
@@ -49,7 +49,7 @@ def lonlat(feature):
 #  Batch csv
 ###################
 
-@simple_time_tracker
+#@simple_time_tracker
 def get_insee_batch(csv_path='gpm/data/test_batch_api.csv', save=False, sep=','):
     """
     Get input csv and add INSEE code columns column named code_insee
@@ -73,6 +73,7 @@ def get_insee_batch(csv_path='gpm/data/test_batch_api.csv', save=False, sep=',')
     if save:
         output_name = csv_path.split('.')[0] + '_insee.csv'
         df.to_csv(output_name, index=False)
+        print(colored("output file saved with INSEE codes: \n {}".format(output_name), "blue"))
     return df
 
 
@@ -81,4 +82,4 @@ if __name__ == '__main__':
     q = "34 rue Raynouard, Paris"
     code_insee = get_insee_single(q)
     print(code_insee)
-    df = get_insee_batch(csv_path=path ,save=False)
+    df = get_insee_batch(csv_path=path ,save=True)

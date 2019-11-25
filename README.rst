@@ -3,6 +3,26 @@ Data analysis
 - Document here the project: gpm
 - Description: Repository getting insee codes from input csv
 
+
+Example of utilisation
+=======================
+
+first install package with pip::
+
+    pip install git+git://github.com/lologibus2/gpm.git
+
+Then call functions inside a Notebook for example::
+
+    from gpm.online import get_insee_batch
+    data_path = "path_to_your_csv"
+    df = get_insee_batch(csv_path=data_path, sep=';', save=False)
+    df.head()
+
+If you want to save it to output csv just run::
+
+    df = get_insee_batch(csv_path=data_path, sep=';', save=True)
+
+
 Startup the project
 =====================
 The initial setup.

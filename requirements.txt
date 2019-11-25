@@ -12,3 +12,4 @@ shapely
 geocoder
 numpy
 slumber
+termcolor
