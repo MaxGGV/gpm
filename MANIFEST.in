@@ -1,0 +1,3 @@
+graft bourso
+global-exclude *.py[cod] __pycache__ *.so *.ipynb
+recursive-exclude  bourso/jupy *

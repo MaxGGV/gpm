@@ -1,0 +1,14 @@
+pip>=9
+setuptools>=26
+wheel>=0.29
+pandas
+coverage
+flake8
+yapf
+geopandas
+geopy
+rtree
+shapely
+geocoder
+numpy
+slumber
