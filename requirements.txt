@@ -7,7 +7,7 @@ flake8
 yapf
 geopandas
 geopy
-rtree
+#rtree
 shapely
 geocoder
 numpy
