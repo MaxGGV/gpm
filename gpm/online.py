@@ -8,7 +8,7 @@ import geopandas
 import pandas as pd
 import requests
 import slumber
-from gpm.load import ADRESS_COL_NAME, preprocess, load_iris_local
+from gpm.load import ADRESS_COL_NAME, preprocess, load_iris_local, load_iris_url
 
 from gpm.decorators import simple_time_tracker
 from termcolor import colored
@@ -99,7 +99,8 @@ def get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=',', save=False, 
         'nom_ville'].astype(str)
     df = preprocess(df, to_geopandas=True, geocode=True)
     if not df_iris:
-        places_iris = load_iris_local()  # 30 seconds to load
+        #places_iris = load_iris_local()  # 30 seconds to load
+        places_iris = load_iris_url()  # 30 seconds to load
     else:
         places_iris = df
     result = geopandas.tools.sjoin(df, places_iris, how="left")

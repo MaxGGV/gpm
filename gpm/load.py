@@ -19,13 +19,13 @@ folder_source, _ = split(gpm.__file__)
 #################
 # IRIS
 #################
-
+@simple_time_tracker
 def load_iris_url(save=False):
     """
     load IRIS geoshape file
     :return:
     """
-    url = "https://public.opendatasoft.com/explore/dataset/contours-iris/download/?format=shp&timezone=Europe/Berlin"
+    url = "https://public.opendatasoft.com/explore/dataset/contours-iris/download/?format=geojson&timezone=Europe/Berlin"
     iris = geopandas.read_file(url)
     if save:
         filename = "gpm/data/contours-iris.json"
@@ -116,13 +116,14 @@ def preprocess(df, to_geopandas=True, geocode=True):
     :return: same df with geocoding and geopandas transformation
     """
     if geocode:
-        kind = "here"
-        print("Geocoding using {} in process".format(kind))
+        kind = "HERE"
+        print("Geocoding using {} API in process".format(kind))
         tic = time.time()
         # apply function one by one
         geocod = geo_coder(offline=False, kind=kind)
         df['latlng'] = df.apply(lambda x: geocod.run(x[ADRESS_COL_NAME])[0], axis=1)
-        print(colored(time.time() - tic, 'red'), '\n')
+        t = round(time.time() - tic, 2)
+        print("in {} seconds \n".format(t))
         df['lat'], df['lng'] = df['latlng'].str.split(',', 1).str
         df['lat'], df['lng'] = df['lat'].apply(float), df['lng'].apply(float)
         #Batch
