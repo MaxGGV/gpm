@@ -13,3 +13,4 @@ geocoder
 numpy
 slumber
 termcolor
+arcgis
