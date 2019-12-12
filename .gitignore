@@ -7,4 +7,4 @@ dist/
 ipynb_checkpoints/
 *.iml
 .idea
-contours-iris.json
+gpm/data/contours-iris.json
