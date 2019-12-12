@@ -12,6 +12,7 @@ first install package with pip::
     pip install git+git://github.com/lologibus2/gpm.git
 
 Then call functions inside a Notebook for example
+
 - **For INSEE codes**::
 
     from gpm.online import get_insee_batch
