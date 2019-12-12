@@ -31,6 +31,7 @@ loading all iris Polygon take 1,5 minutes so if you want to try with multiple fi
 
     from gpm.online import get_iris_batch
     from gpm.load import load_iris_url
+    data_path = "path_to_your_csv"
     iris = load_iris_url()
     df = get_iris_batch(csv_path=data_path, sep=';', save=False, df_iris=iris)
     df.head()

@@ -80,6 +80,7 @@ def get_insee_batch(csv_path='gpm/data/test_batch_api.csv', save=False, sep=',')
         print(colored("output file saved with INSEE codes: \n {}".format(output_name), "blue"))
     return df, df_test
 
+
 #########################################################
 #  Batch IRIS via geopandas and local iris dataset
 #########################################################
@@ -98,8 +99,8 @@ def get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=',', save=False, 
     df[ADRESS_COL_NAME] = df['num_niv_type_voie'].astype(str) + " " + df['cd_postal'].astype(str) + " " + df[
         'nom_ville'].astype(str)
     df = preprocess(df, to_geopandas=True, geocode=True)
-    if not df_iris:
-        #places_iris = load_iris_local()  # 30 seconds to load
+    if df_iris == None:
+        # places_iris = load_iris_local()  # 30 seconds to load
         places_iris = load_iris_url()  # 30 seconds to load
     else:
         places_iris = df_iris
