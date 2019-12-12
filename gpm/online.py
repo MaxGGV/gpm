@@ -102,7 +102,7 @@ def get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=',', save=False, 
         #places_iris = load_iris_local()  # 30 seconds to load
         places_iris = load_iris_url()  # 30 seconds to load
     else:
-        places_iris = df
+        places_iris = df_iris
     result = geopandas.tools.sjoin(df, places_iris, how="left")
     cols.append('code_iris')
     if save:

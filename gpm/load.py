@@ -116,7 +116,7 @@ def preprocess(df, to_geopandas=True, geocode=True):
     :return: same df with geocoding and geopandas transformation
     """
     if geocode:
-        kind = "HERE"
+        kind = "here"
         print("Geocoding using {} API in process".format(kind))
         tic = time.time()
         # apply function one by one
