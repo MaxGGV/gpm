@@ -99,11 +99,11 @@ def get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=',', save=False, 
     df[ADRESS_COL_NAME] = df['num_niv_type_voie'].astype(str) + " " + df['cd_postal'].astype(str) + " " + df[
         'nom_ville'].astype(str)
     df = preprocess(df, to_geopandas=True, geocode=True)
-    if df_iris == None:
+    if type(df_iris) == geopandas.geodataframe.GeoDataFrame:
+        places_iris = df_iris
+    else:
         # places_iris = load_iris_local()  # 30 seconds to load
         places_iris = load_iris_url()  # 30 seconds to load
-    else:
-        places_iris = df_iris
     result = geopandas.tools.sjoin(df, places_iris, how="left")
     cols.append('code_iris')
     if save:
