@@ -13,7 +13,9 @@ from shapely.geometry import Point
 
 import gpm
 
+from os.path import split
 folder_source, _ = split(gpm.__file__)
+data_path = "{}/data/groupama_input.csv".format(folder_source)
 
 
 #################

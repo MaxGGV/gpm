@@ -8,7 +8,7 @@ import geopandas
 import pandas as pd
 import requests
 import slumber
-from gpm.load import ADRESS_COL_NAME, preprocess, load_iris_local, load_iris_url
+from gpm.load import ADRESS_COL_NAME, preprocess, load_iris_local, load_iris_url, folder_source
 
 from gpm.decorators import simple_time_tracker
 from termcolor import colored
@@ -53,7 +53,10 @@ def lonlat(feature):
 ######################################
 
 # @simple_time_tracker
-def get_insee_batch(csv_path='gpm/data/test_batch_api.csv', save=False, sep=','):
+data_path = "{}/data/groupama_input.csv".format(folder_source)
+
+
+def get_insee_batch(csv_path=data_path, save=False, sep=','):
     """
     Get input csv and add INSEE code columns column named code_insee
     :param save: save outputfile to csv if True
@@ -85,7 +88,7 @@ def get_insee_batch(csv_path='gpm/data/test_batch_api.csv', save=False, sep=',')
 #  Batch IRIS via geopandas and local iris dataset
 #########################################################
 
-def get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=',', save=False, df_iris=None):
+def get_iris_batch(csv_path=data_path, sep=',', save=False, df_iris=None):
     """
     Get input csv with predefined set of columns and add IRIS code
     :param df_iris: iris dataframe from load_iris_local function (saves time)
