@@ -32,6 +32,7 @@ def load_iris_url(save=False):
     if save:
         filename = "gpm/data/contours-iris.json"
         iris.to_file(filename, driver="GeoJSON")
+    iris = iris[iris.geometry!=None]
     return iris
 
 @simple_time_tracker
