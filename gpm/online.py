@@ -105,7 +105,7 @@ def get_iris_batch(csv_path=data_path, sep=',', save=False, df_iris=None,
         df = pd.read_csv(csv_path, sep=sep, nrows=N)
     cols = list(df)
     df = add_adress(df=df, l_cols=l_cols)
-    df = preprocess(df, to_geopandas=True, geocode=True)
+    df = preprocess(df, to_geopandas=True, geocode=True, l_cols=l_cols)
     if type(df_iris) == geopandas.geodataframe.GeoDataFrame:
         places_iris = df_iris
     else:
@@ -134,5 +134,4 @@ if __name__ == '__main__':
     # print(code_insee)
     # _, df = get_insee_batch()
 
-    # df = get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=';')
-    pass
+    df = get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=';')

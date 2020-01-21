@@ -6,6 +6,8 @@ import geopandas
 import pandas as pd
 from shapely.geometry import Point
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 import gpm
 from gpm.decorators import simple_time_tracker
 from gpm.geocod import geo_coder, batch_geocode_gouv
@@ -110,7 +112,8 @@ def get_local_adress_dataset(N=100):
     return df
 
 
-def preprocess(df, to_geopandas=True, geocode=True, batch=True):
+def preprocess(df, to_geopandas=True, geocode=True, batch=True,
+                l_cols=['num_niv_type_voie', 'cd_postal', 'nom_ville']):
     """
     :param df: df with full_adress col
     :param to_geopandas:
@@ -119,10 +122,7 @@ def preprocess(df, to_geopandas=True, geocode=True, batch=True):
     """
     if geocode:
         if batch:
-            # Use geo.api.gouv.fr/adresse
-            kind = "Geo Gouv"
-            print("Geocoding using {} API in process".format(kind))
-            df = batch_geocode_gouv(df=df)
+            df = batch_geocode_gouv(df=df, l_cols=l_cols)
         else:
             kind = "here"
             print("Geocoding using {} API in process".format(kind))
@@ -143,8 +143,10 @@ def preprocess(df, to_geopandas=True, geocode=True, batch=True):
 
 
 if __name__ == '__main__':
-    # df = get_data()
-    # df = preprocess(df.sample(20))
-    # df = get_online_label_data(save=True)
-    # df = load_insee_url(save=True)
-    df = get_local_adress_dataset()
+    data_path = "/Users/jeanbizot/Documents/projets/GROUPAMA/gpm/gpm/data/data2_code.csv"
+    adress_cols = ['num_niv_type_voie', 'Code postal', 'nom_ville']
+    N = 110
+    df = pd.read_csv(data_path, sep=";", nrows=N)
+    cols = list(df)
+    df = add_adress(df=df, l_cols=adress_cols)
+    df = preprocess(df, to_geopandas=True, geocode=True, batch=True, l_cols=adress_cols)

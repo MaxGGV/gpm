@@ -1,3 +1,6 @@
+import pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
+
 ADRESS_COL_NAME = "full_address"
 
 
@@ -9,9 +12,9 @@ def add_adress(df, l_cols):
     :return: df with additional adress col
     """
     sep = " "
-    df_res = df[l_cols[0]].astype(str) + sep
+    df_res = df.loc[:, l_cols[0]].astype(str) + sep
     for col in l_cols[1:]:
-        df_res += df[col].astype(str)
+        df_res += df.loc[:, col].astype(str)
         df_res += sep
-    df[ADRESS_COL_NAME] = df_res
+    df.loc[:, ADRESS_COL_NAME] = df_res
     return df

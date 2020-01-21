@@ -28,7 +28,7 @@ Then call functions inside a Notebook for example
     df.head()
 
 loading all iris Polygon take 1,5 minutes so if you want to try with multiple files you'd rather import iris_file first
-You can also specify the columns used to form the complete adress in the correct order::
+You can also specify the **columns used to form the complete adress** in the correct order::
 
     from gpm.online import get_iris_batch
     from gpm.load import load_iris_url
@@ -37,8 +37,6 @@ You can also specify the columns used to form the complete adress in the correct
     adress_cols = ['num_niv_type_voie', 'cd_postal', 'nom_ville']
     df = get_iris_batch(csv_path=data_path, sep=';', save=False, df_iris=iris, l_cols=adress_cols)
     df.head()
-
-
 
 If you want to save it to output csv just run::
 
@@ -66,7 +64,4 @@ Don't forget to install rtree along with::
 
     pip install rtree
     sudo apt-get update && apt-get install -y libspatialindex-dev
-
-
-
 
