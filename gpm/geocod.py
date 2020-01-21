@@ -1,9 +1,13 @@
 # -*- coding: UTF-8 -*-
 import csv
 import io
+import os
+import time
+
 import pandas as pd
 import geocoder
 import requests
+from gpm.utils import ADRESS_COL_NAME, add_adress
 from termcolor import colored
 
 from gpm.decorators import simple_time_tracker
@@ -93,8 +97,9 @@ def batch_geocode(l_adress, kind='arcgis'):
         lngs = [r['location']['y'] for r in results]
         return lats, lngs
 
-
-def batch_geocode_gouv(csv_path='gpm/data/test_batch_api.csv', save=False, sep=','):
+@simple_time_tracker
+def batch_geocode_gouv(csv_path='gpm/data/test_batch_api.csv', sep=',', df=None,
+                       l_cols=['num_niv_type_voie', 'cd_postal', 'nom_ville']):
     """
     geocode from gouv opendata API, only working for french geoloc
     advantages : free, no limit, and faster
@@ -102,30 +107,54 @@ def batch_geocode_gouv(csv_path='gpm/data/test_batch_api.csv', save=False, sep='
     :param csv_path:
     :param save:
     :param sep:
-    :return:
+    :return: same df with 2 new cols (lat, lng)
     """
-    URL = "https://api-adresse.data.gouv.fr"
-    url = URL + '/search/csv'
-    # Get columns
-    with open(csv_path, mode='r', encoding='utf-8') as f:
-        reader = csv.DictReader(f, delimiter=sep)
-        cols = reader.fieldnames
+    url = "https://api-adresse.data.gouv.fr/search/csv"
+    if type(df) == pd.core.frame.DataFrame:
+        cols = list(df)
+        if ADRESS_COL_NAME not in list(df):
+            df = add_adress(df=df, l_cols=l_cols)
+        transit_csv_name = 'DataReformated_ApiGouv.csv'
+        df[[ADRESS_COL_NAME]].to_csv(transit_csv_name, index=False, sep=sep)
+        csv_path = transit_csv_name
+    else:
+        with open(csv_path, mode='r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter=sep)
+            cols = reader.fieldnames
     # Send request to gouv api
     with open(csv_path, 'rb') as f:
         res = requests.post(url, files={'data': f})
     # Format output file
-    df = pd.read_csv(io.StringIO(res.text), sep=sep)
-    cols.extend(['latitude', 'longitude'])
-    df = df[cols]
+    df_res = pd.read_csv(io.StringIO(res.text), sep=',')
+    new_cols = ['latitude', 'longitude']
+    df[new_cols] = df_res[new_cols]
+    df = df.filter(items=cols+new_cols)
     df.rename(columns={"latitude": "lat", "longitude": "lng"}, inplace=True)
+    os.remove(transit_csv_name)
     return df
 
 
 if __name__ == '__main__':
+    test_stream=False
     add = ["34 rue Raynouard 75016 Paris", "11 rue d'Hauteville 75010 Paris", "110 rue de Rivoli, Paris"]
-    for kind in ['here', 'arcgis', 'bing']:
-        print(colored(kind, "green"))
-        gecod = geo_coder(offline=False, kind=kind)
-        res = gecod.run(add)
-        print('\n')
-    lats, lngs = batch_geocode(add)
+    l_geocoders = ['here', 'arcgis', 'bing']
+    for kind in l_geocoders:
+        if test_stream:
+            print(colored(kind, "green"))
+            gecod = geo_coder(offline=False, kind=kind)
+            res = gecod.run(add)
+            print('\n')
+    # Batch api gouv geocoding
+    file2 = "data2_code"
+    datapath = "/Users/jeanbizot/Documents/projets/GROUPAMA/gpm/gpm/data"
+    file_path = '{}/{}.csv'.format(datapath, file2)
+    sep = ';'
+    df = pd.read_csv(file_path, sep=sep)
+    df['cd_postal'] = df['Code postal']
+    res = {}
+    for N in [100, 1000, 10000, 100000]:
+        print(N)
+        tic = time.time()
+        df_res = batch_geocode_gouv(df=df.head(N), sep=sep)
+        res[N] = time.time() - tic
+

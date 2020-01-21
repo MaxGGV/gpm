@@ -1,19 +1,16 @@
+import random
 import time
 from os.path import split
-import random
 
 import geopandas
 import pandas as pd
-import numpy as np
-from termcolor import colored
-
-from gpm.decorators import simple_time_tracker
-from gpm.geocod import geo_coder
 from shapely.geometry import Point
 
 import gpm
+from gpm.decorators import simple_time_tracker
+from gpm.geocod import geo_coder, batch_geocode_gouv
+from gpm.utils import ADRESS_COL_NAME, add_adress
 
-from os.path import split
 folder_source, _ = split(gpm.__file__)
 data_path = "{}/data/groupama_input.csv".format(folder_source)
 
@@ -27,13 +24,15 @@ def load_iris_url(save=False):
     load IRIS geoshape file
     :return:
     """
-    url = "https://public.opendatasoft.com/explore/dataset/contours-iris/download/?format=geojson&timezone=Europe/Berlin"
+    url = "https://public.opendatasoft.com/explore/dataset/contours-iris/download/?format=geojson&timezone=Europe" \
+          "/Berlin "
     iris = geopandas.read_file(url)
     if save:
         filename = "gpm/data/contours-iris.json"
         iris.to_file(filename, driver="GeoJSON")
-    iris = iris[iris.geometry!=None]
+    iris = iris[iris.geometry != None]
     return iris
+
 
 @simple_time_tracker
 def load_iris_local():
@@ -51,7 +50,8 @@ def load_insee_url(save=False):
     load INSEE geoshape file
     :return:
     """
-    url = "https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal/download/?format=shp&timezone=Europe/Berlin"
+    url = "https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal/download/?format=shp" \
+          "&timezone=Europe/Berlin"
     insee = geopandas.read_file(url)
     if save:
         filename = "gpm/data/insee.json"
@@ -68,7 +68,6 @@ def load_insee_local():
 ##################################
 #  Input data preprocessing
 ##################################
-ADRESS_COL_NAME = "full_address"
 
 
 def get_online_adress_dataset(save=False, N_samples=2000):
@@ -104,14 +103,14 @@ def get_local_adress_dataset(N=100):
     PATH = "gpm/data/address-01-sample-2000.csv"
     df = pd.read_csv(PATH)
     df['code_postal'] = df.code_postal.apply(str).str.zfill(5)
-    df[ADRESS_COL_NAME] = df['numero'].astype(str) + sep + df['nom_voie'].astype(str) + sep + df['nom_commune'].astype(
-        str) + sep + df['code_postal'].astype(str)
+    l_cols = ['numero', 'nom_voie', 'nom_commune', 'code_postal']
+    df = add_adress(df=df, l_cols=l_cols)
     df = df.rename(columns={"lat": "true_lat", "lng": "true_lng"})
     df = df.sample(N).reset_index(drop=True)
     return df
 
 
-def preprocess(df, to_geopandas=True, geocode=True):
+def preprocess(df, to_geopandas=True, geocode=True, batch=True):
     """
     :param df: df with full_adress col
     :param to_geopandas:
@@ -119,18 +118,22 @@ def preprocess(df, to_geopandas=True, geocode=True):
     :return: same df with geocoding and geopandas transformation
     """
     if geocode:
-        kind = "here"
-        print("Geocoding using {} API in process".format(kind))
-        tic = time.time()
-        # apply function one by one
-        geocod = geo_coder(offline=False, kind=kind)
-        df['latlng'] = df.apply(lambda x: geocod.run(x[ADRESS_COL_NAME])[0], axis=1)
-        t = round(time.time() - tic, 2)
-        print("in {} seconds \n".format(t))
-        df['lat'], df['lng'] = df['latlng'].str.split(',', 1).str
-        df['lat'], df['lng'] = df['lat'].apply(float), df['lng'].apply(float)
-        #Batch
-        #df['lat'], df['lng'] = batch_geocode(df[ADRESS_COL_NAME].values)
+        if batch:
+            # Use geo.api.gouv.fr/adresse
+            kind = "Geo Gouv"
+            print("Geocoding using {} API in process".format(kind))
+            df = batch_geocode_gouv(df=df)
+        else:
+            kind = "here"
+            print("Geocoding using {} API in process".format(kind))
+            tic = time.time()
+            # apply function one by one
+            geocod = geo_coder(offline=False, kind=kind)
+            df['latlng'] = df.apply(lambda x: geocod.run(x[ADRESS_COL_NAME])[0], axis=1)
+            t = round(time.time() - tic, 2)
+            print("in {} seconds \n".format(t))
+            df['lat'], df['lng'] = df['latlng'].str.split(',', 1).str
+            df['lat'], df['lng'] = df['lat'].apply(float), df['lng'].apply(float)
     if to_geopandas:
         df['geometry'] = df.apply(lambda row: Point(row['lng'], row['lat']), axis=1)
         df = geopandas.GeoDataFrame(df, geometry="geometry")
@@ -144,4 +147,4 @@ if __name__ == '__main__':
     # df = preprocess(df.sample(20))
     # df = get_online_label_data(save=True)
     # df = load_insee_url(save=True)
-    pass
+    df = get_local_adress_dataset()

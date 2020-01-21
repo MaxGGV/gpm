@@ -8,7 +8,8 @@ import geopandas
 import pandas as pd
 import requests
 import slumber
-from gpm.load import ADRESS_COL_NAME, preprocess, load_iris_local, load_iris_url, folder_source
+from gpm.load import preprocess, load_iris_local, load_iris_url, folder_source
+from gpm.utils import ADRESS_COL_NAME, add_adress
 
 from gpm.decorators import simple_time_tracker
 from termcolor import colored
@@ -88,7 +89,8 @@ def get_insee_batch(csv_path=data_path, save=False, sep=','):
 #  Batch IRIS via geopandas and local iris dataset
 #########################################################
 
-def get_iris_batch(csv_path=data_path, sep=',', save=False, df_iris=None):
+def get_iris_batch(csv_path=data_path, sep=',', save=False, df_iris=None,
+                   l_cols=['num_niv_type_voie', 'cd_postal', 'nom_ville'], N=None):
     """
     Get input csv with predefined set of columns and add IRIS code
     :param df_iris: iris dataframe from load_iris_local function (saves time)
@@ -97,17 +99,25 @@ def get_iris_batch(csv_path=data_path, sep=',', save=False, df_iris=None):
     :param sep:
     :return:
     """
-    df = pd.read_csv(csv_path, sep=sep)
+    if not N:
+        df = pd.read_csv(csv_path, sep=sep)
+    else:
+        df = pd.read_csv(csv_path, sep=sep, nrows=N)
     cols = list(df)
-    df[ADRESS_COL_NAME] = df['num_niv_type_voie'].astype(str) + " " + df['cd_postal'].astype(str) + " " + df[
-        'nom_ville'].astype(str)
+    df = add_adress(df=df, l_cols=l_cols)
     df = preprocess(df, to_geopandas=True, geocode=True)
     if type(df_iris) == geopandas.geodataframe.GeoDataFrame:
         places_iris = df_iris
     else:
         # places_iris = load_iris_local()  # 30 seconds to load
         places_iris = load_iris_url()  # 30 seconds to load
-    result = geopandas.tools.sjoin(df, places_iris, how="left")
+    bad_geocod = df[df.lat.isnull()].full_address.values
+    if len(bad_geocod) > 0:
+        print("##WARNING## \n {} adresses were not able to be geocoded : \n {}".format(len(bad_geocod), bad_geocod))
+    # Deal with Not correctly geocoded data
+    result = geopandas.tools.sjoin(df[~df.lat.isnull()], places_iris, how="left")
+    result = result.append(df[df.lat.isnull()], sort=True)
+    result = result.sort_index()
     cols.append('code_iris')
     if save:
         output_name = csv_path.split('.')[0] + '_iris.csv'
@@ -123,4 +133,6 @@ if __name__ == '__main__':
     # all = get_all_single(q)
     # print(code_insee)
     # _, df = get_insee_batch()
-    df = get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=';')
+
+    # df = get_iris_batch(csv_path='gpm/data/groupama_input.csv', sep=';')
+    pass

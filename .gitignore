@@ -8,3 +8,4 @@ ipynb_checkpoints/
 *.iml
 .idea
 gpm/data/contours-iris.json
+gpm/jupy
