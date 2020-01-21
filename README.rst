@@ -39,7 +39,7 @@ You can also specify the **columns used to form the complete adress** in the cor
     df = get_iris_batch(csv_path=data_path, sep=';', save=False, df_iris=iris, l_cols=adress_cols)
     df.head()
 
-NB : For **Large datasets** the pipeline mught take a while to run becaus of batch geocoding
+NB : For **Large datasets** the pipeline might take a while to run becaus of batch geocoding
 
 If you want to save it to output csv just run::
 
