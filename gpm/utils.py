@@ -14,7 +14,10 @@ def add_adress(df, l_cols):
     sep = " "
     df_res = df.loc[:, l_cols[0]].astype(str) + sep
     for col in l_cols[1:]:
-        df_res += df.loc[:, col].astype(str)
+        if 'postal' in col:
+            df_res += df.loc[:, col].astype(str).str.zfill(5)
+        else:
+            df_res += df.loc[:, col].astype(str)
         df_res += sep
     df.loc[:, ADRESS_COL_NAME] = df_res
     return df
