@@ -28,6 +28,7 @@ Then call functions inside a Notebook for example
     df.head()
 
 loading all iris Polygon take 1,5 minutes so if you want to try with multiple files you'd rather import iris_file first
+
 You can also specify the **columns used to form the complete adress** in the correct order::
 
     from gpm.online import get_iris_batch
@@ -37,6 +38,8 @@ You can also specify the **columns used to form the complete adress** in the cor
     adress_cols = ['num_niv_type_voie', 'cd_postal', 'nom_ville']
     df = get_iris_batch(csv_path=data_path, sep=';', save=False, df_iris=iris, l_cols=adress_cols)
     df.head()
+
+NB : For **Large datasets** the pipeline mught take a while to run becaus of batch geocoding
 
 If you want to save it to output csv just run::
 
