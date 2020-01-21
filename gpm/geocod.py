@@ -131,7 +131,7 @@ def batch_geocode_gouv(df, l_cols=['num_niv_type_voie', 'cd_postal', 'nom_ville'
     cols = list(df)
     if ADRESS_COL_NAME not in list(df):
         df = add_adress(df=df, l_cols=l_cols)
-    Sp = 500  # chunk size
+    Sp = 20000  # chunk size
     if df.shape[0] >= Sp:
         l_df = []
         list_df = [df.iloc[i:i + Sp] for i in range(0, df.shape[0], Sp)]
