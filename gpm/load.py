@@ -26,8 +26,7 @@ def load_iris_url(save=False):
     load IRIS geoshape file
     :return:
     """
-    url = "https://public.opendatasoft.com/explore/dataset/contours-iris/download/?format=geojson&timezone=Europe" \
-          "/Berlin "
+    url = "https://public.opendatasoft.com/explore/dataset/iris-millesimes/download/?format=geojson&timezone=Europe/Berlin&lang=fr"
     iris = geopandas.read_file(url)
     if save:
         filename = "gpm/data/contours-iris.json"
